@@ -2,94 +2,94 @@ package Tree;
 
 import java.util.LinkedList;
 
-public class BinarySearchTree implements IBinarySearchTree {
-    
-    private BinaryTree binaryTreeRoot;
+public class BinarySearchTree<T extends Comparable<T>> implements IBinarySearchTree<T> {
+
+    private BinaryTree<T> binaryTreeRoot;
     
     public BinarySearchTree(T data){
-        binaryTreeRoot = new BinaryTree(data);
+        binaryTreeRoot = new BinaryTree<T>(data);
     }
 
     public void insert(T data){
         if(containsKey(data)) throw new IllegalArgumentException("Element already exists in the Tree. No Duplicates allowed.");
-        BinaryTree traverseNode = binaryTreeRoot;
+        Node<T> traverseNode = binaryTreeRoot.getRoot();
 
-        while((traverseNode.left != null) || (traverseNode.right != null)){
-            if(lessThan(data,traverseNode.data)){
-                if(traverseNode.left == null) break; // If only right subtree exists then the this node is first in left subtree
-                traverseNode = traverseNode.left;
+        while((traverseNode.getLeft() != null) || (traverseNode.getRight() != null)){
+            if(lessThan(data,traverseNode.getNodeData())){
+                if(traverseNode.getLeft() == null) break; // If only right subtree exists then the this node is first in left subtree
+                traverseNode = traverseNode.getLeft();
             }
             else{
-                if(traverseNode.right == null) break; // If only left subtree exists then the this node is first in right subtree
-                traverseNode = traverseNode.right;
+                if(traverseNode.getRight() == null) break; // If only left subtree exists then the this node is first in right subtree
+                traverseNode = traverseNode.getRight();
             }
         }
         // Data Insertion
-        if(lessThan(data,traverseNode.data)) {
-            traverseNode.left = new Node<T>(data);
+        if(lessThan(data,traverseNode.getNodeData())) {
+            traverseNode.setLeft(new Node<T>(data));
         }
         else{
-            traverseNode.right = new Node<T>(data);
+            traverseNode.setRight(new Node<T>(data));
         }
     }
 
     void removeLeaf(T data){
-        Node<T> traverseNode = rootNode;
-        Node<T> traverseNodeParent = rootNode; // To make the links to nodes null
-        while (traverseNode.data != data){
+        Node<T> traverseNode = binaryTreeRoot.getRoot();
+        Node<T> traverseNodeParent = binaryTreeRoot.getRoot(); // To make the links to nodes null
+        while (!traverseNode.getNodeData().equals(data)){
             traverseNodeParent = traverseNode;
-            if(lessThan(data,traverseNode.data)) traverseNode = traverseNode.left;
-            else traverseNode = traverseNode.right;
+            if(lessThan(data,traverseNode.getNodeData())) traverseNode = traverseNode.getLeft();
+            else traverseNode = traverseNode.getRight();
         }
-        if(traverseNode == traverseNodeParent.left) traverseNodeParent.left =null;
-        else traverseNodeParent.right = null;
+        if(traverseNode == traverseNodeParent.getLeft()) traverseNodeParent.setLeft(null);
+        else traverseNodeParent.setRight(null);
         traverseNode = null;
     }
     void removeHalfSubtree(T data){
-        Node<T> subTreeTraverseNode = rootNode;
-        Node<T> traverseNodeParent = rootNode; // To make the links to nodes null
-        while (subTreeTraverseNode.data != data){
+        Node<T> subTreeTraverseNode = binaryTreeRoot.getRoot();
+        Node<T> traverseNodeParent = binaryTreeRoot.getRoot(); // To make the links to nodes null
+        while (!subTreeTraverseNode.getNodeData().equals(data)){
             traverseNodeParent = subTreeTraverseNode;
-            if(lessThan(data,subTreeTraverseNode.data)) subTreeTraverseNode = subTreeTraverseNode.left;
+            if(lessThan(data,subTreeTraverseNode.getNodeData())) subTreeTraverseNode = subTreeTraverseNode.getLeft();
             else {
-                subTreeTraverseNode = subTreeTraverseNode.right;
+                subTreeTraverseNode = subTreeTraverseNode.getRight();
             }
         }
-        traverseNodeParent.left = subTreeTraverseNode.left;
-        traverseNodeParent.right = subTreeTraverseNode.right;
+        traverseNodeParent.setLeft(subTreeTraverseNode.getLeft());
+        traverseNodeParent.setRight(subTreeTraverseNode.getRight());
         subTreeTraverseNode = null;
     }
     void removeFullSubtree(Node<T> startNode){
         // Chooses smallest from Right subtree i.e Smallest element from the right subtree
         Node<T> subTreeTraverseNode = startNode;
         Node<T> leftMostNode = getLeftMostNode(subTreeTraverseNode);
-        T tempData = leftMostNode.data;
+        T tempData = leftMostNode.getNodeData();
         removeLeaf(tempData);
-        subTreeTraverseNode.data = tempData;
+        subTreeTraverseNode.setNodeData(tempData);
     }
     void removeNode(T data){
-        Node<T> traverseNode = rootNode;
+        Node<T> traverseNode = binaryTreeRoot.getRoot();
         if(!containsKey(data)) throw new IllegalArgumentException("No such node in the tree");
-        while (traverseNode.data != data){
-            if(lessThan(data,traverseNode.data)) traverseNode= traverseNode.left;
-            else traverseNode = traverseNode.right;
+        while (!traverseNode.getNodeData().equals(data)){
+            if(lessThan(data,traverseNode.getNodeData())) traverseNode= traverseNode.getLeft();
+            else traverseNode = traverseNode.getRight();
         }
 
         // 1. If Tree.Node is a left
-        if(traverseNode.left == null && traverseNode.right == null) removeLeaf(data);
+        if(traverseNode.getLeft() == null && traverseNode.getRight() == null) removeLeaf(data);
             // 2. If only one of the subtrees is null
-        else if (traverseNode.left == null || traverseNode.right == null) removeHalfSubtree(data);
+        else if (traverseNode.getLeft() == null || traverseNode.getRight() == null) removeHalfSubtree(data);
             // 3. If the Tree.Node has both the subtrees
-        else removeFullSubtree(traverseNode.right);
+        else removeFullSubtree(traverseNode.getRight());
     }
 
     private Node<T> getLeftMostNode(Node<T> startNode){
-        while(startNode.left != null) startNode = startNode.left;
+        while(startNode.getLeft() != null) startNode = startNode.getLeft();
         return startNode;
     }
 
     private Node<T> getRightMostNode(Node<T> startNode){
-        while(startNode.right != null) startNode = startNode.right;
+        while(startNode.getRight() != null) startNode = startNode.getRight();
         return startNode;
     }
 
@@ -99,44 +99,44 @@ public class BinarySearchTree implements IBinarySearchTree {
         if(traverseNode == null){
             return;
         }
-        this.inOrderTraverseRecursive(traverseNode.left);
-        System.out.print(traverseNode.data + " ");
-        this.inOrderTraverseRecursive(traverseNode.right);
+        this.inOrderTraverseRecursive(traverseNode.getLeft());
+        System.out.print(traverseNode.getNodeData() + " ");
+        this.inOrderTraverseRecursive(traverseNode.getRight());
     }
 
     void preOrderTraverseRecursive(Node<T> traverseNode){
         if(traverseNode == null){
             return;
         }
-        System.out.print(traverseNode.data + " ");
-        this.preOrderTraverseRecursive(traverseNode.left);
-        this.preOrderTraverseRecursive(traverseNode.right);
+        System.out.print(traverseNode.getNodeData() + " ");
+        this.preOrderTraverseRecursive(traverseNode.getLeft());
+        this.preOrderTraverseRecursive(traverseNode.getRight());
     }
 
     void postOrderTraverseRecursive(Node<T> traverseNode){
         if(traverseNode == null){
             return;
         }
-        this.postOrderTraverseRecursive(traverseNode.left);
-        this.postOrderTraverseRecursive(traverseNode.right);
-        System.out.print(traverseNode.data + " ");
+        this.postOrderTraverseRecursive(traverseNode.getLeft());
+        this.postOrderTraverseRecursive(traverseNode.getRight());
+        System.out.print(traverseNode.getNodeData() + " ");
     }
 
     void levelOrderTraverseIterative(){
-        if(rootNode == null) throw new NullPointerException("Root Tree.Node is Null! Tree empty.");
+        if(binaryTreeRoot.getRoot() == null) throw new NullPointerException("Root Tree.Node is Null! Tree empty.");
 
         LinkedList<Node<T>> levelQueue = new LinkedList<>();
-        levelQueue.addLast(rootNode);
+        levelQueue.addLast(binaryTreeRoot.getRoot());
 
         while (!(levelQueue.isEmpty())){
             Node<T> currentNode = levelQueue.getFirst();
-            if(currentNode.left != null){
-                levelQueue.addLast(currentNode.left);
+            if(currentNode.getLeft() != null){
+                levelQueue.addLast(currentNode.getLeft());
             }
-            if(currentNode.right != null){
-                levelQueue.addLast(currentNode.right);
+            if(currentNode.getRight() != null){
+                levelQueue.addLast(currentNode.getRight());
             }
-            System.out.print(currentNode.data+ " ");
+            System.out.print(currentNode.getNodeData()+ " ");
             levelQueue.removeFirst();
         }
     }
@@ -148,17 +148,17 @@ public class BinarySearchTree implements IBinarySearchTree {
         return aValue.compareTo(bValue) < 0;
     }
 
-    private boolean containsKey(T data){
-        Node<T> traverseNode = rootNode; // Start finding from root
+    public boolean containsKey(T data){
+        Node<T> traverseNode = binaryTreeRoot.getRoot(); // Start finding from root
         while (traverseNode != null){
-            T nodeData = traverseNode.data;
-            if (nodeData == data) return true;
+            T nodeData = traverseNode.getNodeData();
+            if (nodeData.equals(data)) return true;
 
             if( lessThan(data,nodeData)){
-                traverseNode = traverseNode.left;
+                traverseNode = traverseNode.getLeft();
             }
             else{
-                traverseNode = traverseNode.right;
+                traverseNode = traverseNode.getRight();
             }
         }
         /* O(logn) Always case if checked during every insertion. 
@@ -169,14 +169,14 @@ public class BinarySearchTree implements IBinarySearchTree {
     public static void main(String[] args) {
         BinarySearchTree<Integer> testBST = new BinarySearchTree<Integer>(10);
         // Insert
-        testBST.insertNode(5);
-        testBST.insertNode(20);
-        testBST.insertNode(9);
-        testBST.insertNode(8);
-        testBST.insertNode(2);
-        testBST.insertNode(18);
-        testBST.insertNode(21);
-        testBST.insertNode(22);
+        testBST.insert(5);
+        testBST.insert(20);
+        testBST.insert(9);
+        testBST.insert(8);
+        testBST.insert(2);
+        testBST.insert(18);
+        testBST.insert(21);
+        testBST.insert(22);
         // Remove leaves
         testBST.removeNode(2);
         testBST.removeNode(8);
@@ -189,18 +189,8 @@ public class BinarySearchTree implements IBinarySearchTree {
     }
 
     @Override
-    public void insert(Comparable data) {
-        this.insert(data);
-    }
-
-    @Override
-    public void remove(Comparable data) {
+    public void remove(T data) {
         this.removeNode(data);
-    }
-
-    @Override
-    public boolean containsKey(Comparable data) {
-        this.containsKey(data);
     }
 
     @Override
@@ -210,21 +200,21 @@ public class BinarySearchTree implements IBinarySearchTree {
 
     @Override
     public void printPreorder() {
-
+        preOrderTraverseRecursive(binaryTreeRoot.getRoot());
     }
 
     @Override
     public void printInorder() {
-
+        inOrderTraverseRecursive(binaryTreeRoot.getRoot());
     }
 
     @Override
     public void printPostOrder() {
-
+        postOrderTraverseRecursive(binaryTreeRoot.getRoot());
     }
 
     @Override
     public void printLevelOrder() {
-
+        levelOrderTraverseIterative();
     }
 }
